@@ -5,18 +5,36 @@ Page({
    */
   data: {
     userInfo: null,
+    orders: [],
   },
 
   /**
    * Lifecycle function--Called when page load
    */
   onLoad: function (options) {
-    const userInfo = wx.getStorageSync('userInfo');
+    const userInfo = wx.getStorageSync("userInfo");
 
     if (userInfo) {
       this.setData({
         userInfo: userInfo,
-      })
+      });
+
+      const MovieOrders = new wx.BaaS.TableObject("movie_orders");
+
+      const userQuery = new wx.BaaS.Query();
+
+      userQuery.compare("created_by", "=", userInfo.id);
+
+      MovieOrders.setQuery(userQuery)
+        .expand(["productId", "created_by"])
+        .find()
+        .then((res) => {
+          console.log("orders return", res);
+
+          this.setData({
+            orders: res.data.objects,
+          });
+        });
     }
   },
 
@@ -27,7 +45,6 @@ Page({
         this.setData({
           userInfo: res,
         });
-        
       },
       (err) => {
         console.log("login error", err);

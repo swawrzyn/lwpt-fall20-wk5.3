@@ -8,6 +8,7 @@ Page({
       title: "Loading...",
     },
     items: [{ id: 1, text: "Loading..." }],
+    products: [],
     scrollInto: "",
     inputVal: "",
     inputRating: 1,
@@ -25,6 +26,8 @@ Page({
 
     const Movies = new wx.BaaS.TableObject("movies");
     const MovieReviews = new wx.BaaS.TableObject("movie_reviews");
+
+    const MovieProducts = new wx.BaaS.TableObject("movie_products");
 
     // console.log("detail page options", options);
 
@@ -51,6 +54,21 @@ Page({
           items: res.data.objects,
         });
       });
+
+
+    // Get All Movie Products
+    const productQuery = new wx.BaaS.Query();
+
+    productQuery.compare('movieId', '=', options.id);
+
+    MovieProducts.setQuery(productQuery).find().then((res) => {
+      this.setData({
+        products: res.data.objects,
+      })
+    }, (err) => {
+      console.log('product get error', err);
+    })
+    
   },
   inputChange: function (e) {
     this.setData({
@@ -115,4 +133,34 @@ Page({
       inputRating: Number.parseInt(e.detail.value),
     });
   },
+
+  placeOrder: function(e) {
+    const productId = e.currentTarget.id;
+
+    const MovieOrder = new wx.BaaS.TableObject('movie_orders');
+
+    const newOrder = MovieOrder.create();
+
+    newOrder.set({
+      productId: productId
+    });
+
+    newOrder.save().then((res) => {
+      wx.showModal({
+        title: 'Success!',
+        content: 'The product was ordered!',
+        showCancel: false,
+        confirmText: '确定',
+        confirmColor: '#3CC51F',
+      });
+    }, (err) => {
+      wx.showModal({
+        title: 'Fail!',
+        content: 'There was a problem.',
+        showCancel: false,
+        confirmText: '确定',
+        confirmColor: '#3CC51F',
+      });
+    })
+  }
 });

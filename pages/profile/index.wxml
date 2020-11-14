@@ -8,4 +8,10 @@
   <view wx:if="{{!userInfo}}" class="title" style="margin-bottom: 20rpx;">
     <button open-type="getUserInfo" bindgetuserinfo="userInfoHandler" type="primary">Login</button>
   </view>
+  <view class="list">
+    <view class="item" wx:for="{{orders}}" wx:for-item="order" wx:key="{{order.id}}">
+      <text>Product Name: {{order.productId.title}}</text>
+      <text>Product Price: {{order.productId.price}}</text>
+    </view>
+  </view>
 </view>
